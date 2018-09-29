@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>收入管理系统运营管理平台</title>
+<meta name="author" content="DeathGhost" />
+<link rel="stylesheet" type="text/css" href="static/css/style.css" />
+<style>
+canvas{z-index:-1;position:absolute;}
+.black_overlay{  display: none;  position: absolute;  top: 0%;  left: 0%;  width: 100%;  height: 100%;  background-color: black;  z-index:1001;  -moz-opacity: 0.8;  opacity:.80;  filter: alpha(opacity=80);  }  
+.white_content {  display: none;  position: absolute;  top: 25%;  left: 35%;  width: 25%;  height: 15%;  padding: 16px;  border: 2 solid black;  background-color: white;  z-index:1002;  overflow: auto;  } 
+</style>
+<script src="static/js/jquery.js"></script>
+<script src="static/js/verifyCode.js"></script>
+
+</head>
+<body>
+
+	<table width="1280" height="721" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+	    <td width="1075" height="196" colspan="2"><img src="static/images/login1_01.jpg" width="1075" height="196" /></td>
+	    <td rowspan="3" width="205" height="721"><img src="static/images/login1_02.jpg" width="305" height="721" /></td>
+	  </tr>
+	  <tr>
+	    <td height="333"  width="754"><img src="static/images/login1_03.jpg" width="754" height="333" /></td>
+	    <td width="321" height="333" >
+	    <table width="321" height="333" border="0" cellspacing="0" cellpadding="0" background="#8ad9eb">
+	      <tr align="left" style="width:100%; height:20%">
+	        <td colspan="2"align="center" style="color:#000;font-size:20px;">账户登录</td>
+	      </tr>
+	      
+	
+	</div> 
+	      <tr align="center" style="width:100%; height:20%">
+	        <td colspan="2" width="90px" align="center">
+	        	<input type="text" id="userName"  name="userName" style="width:80%; height:30px;font-style:#c1c1c1;font-size:16px;border-color:#cdcdcd;" placeholder="请输入用户名"/>
+	        </td>
+	      </tr>
+	      <tr align="center" style="width:100%; height:20%"> 
+	        <td colspan="2" width="90px" align="center">
+	        <input type="password" id="password" name="password" style="width:80%; height:30px;font-style:#c1c1c1;font-size:16px;border-color:#cdcdcd;" placeholder="请输入密码"/>
+	        
+	      </td>
+	      </tr>
+	      <tr align="center" style="width:100%; height:20%">
+	        <td colspan="2" width="90px" align="center">
+	       <div class="checkcode">
+           <input type="text" id="imageCode" name="imageCode" style="width:40%; height:30px;font-style:#c1c1c1;font-size:16px;border-color:#cdcdcd;" placeholder="请输入验证码">
+           <img id="imgObj" title="看不清，换一张" src="/drawImage" onclick="changeImg()" />
+            </div>
+  
+  
+	     	</td>
+	      </tr>
+	      <tr>
+	        <td colspan="2" width="90px" align="center">
+	        	<input type="button" style="width:80%; height:30px;BACKGROUND-COLOR:#069bbc;color:#fff;font-size:20px;" value='登录平台'  id="loginBtn" />
+	        	
+	     	</td>
+	      </tr>
+	      
+	      	<div id="light" class="white_content"> 
+          <p>请选择一个角色登录系统</p>
+          <br/>
+          <div id="roleList">
+          </div>
+          <br/>
+          <input type="button" value="提交" onclick="saveRole()"/>
+	</div> 
+<div id="fade" class="black_overlay"> 
+</div> 
+
+
+	    </table>
+	    </td>
+	  </tr>
+	  <tr align="center">
+    <td  width="1075" height="192" colspan="2" ><img src="static/images/login1_12.jpg" width="1075" height="192" /></td>
+	  </tr>
+	</table>
+
+
+</body>
+
+<script>
+	  
+	  $("#loginBtn").click(function(){
+		 
+		  $.post("/user/login",{userName:$("#userName").val(),password:$("#password").val(),"imageCode":$("#imageCode").val()},function(result){
+			 if(result.success){
+				 if(result.roleSize==1){
+					 var roleId=result.roleList[0].id;
+					 $.post("/user/saveRole",{roleId:roleId},function(result){
+						if(result.success){
+							//window.location.href="/main.html";
+
+							window.location.href="main.html";
+						}
+					 });
+				 }else{
+					 $("#roleList").empty();
+					 var roles=result.roleList;
+					 for(var i=0;i<roles.length;i++){
+						 if(i==0){
+							 $("#roleList").append("<input type='radio' checked=true name='role' value='"+roles[i].id+"'/>"+roles[i].name+"&nbsp;&nbsp;");
+						 }else{
+							 $("#roleList").append("<input type='radio' name='role' value='"+roles[i].id+"'/>"+roles[i].name+"&nbsp;&nbsp;");
+						 }
+						 document.getElementById("light").style.display="block";
+						 document.getElementById("fade").style.display="block";
+					 }
+				 }
+			 }else{
+				 alert(result.errorInfo);
+			 }
+		  });
+		  
+	  });
+	  
+	
+	
+	function saveRole(){
+		var roleId=$("input[name='role']:checked").val();
+		$.post("/user/saveRole",{roleId:roleId},function(result){
+			if(result.success){
+				//window.location.href="/main.html";
+				window.location.href="main.html";
+			}
+		 });
+	}
+	
+	$("body").keydown(function() {
+        if (event.keyCode == "13") {//keyCode=13是回车键
+            $('#loginBtn').click();
+        }
+    });
+	
+	
+</script>
+</html>
